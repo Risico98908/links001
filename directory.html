@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Article Links</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        td a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        ul {
+            padding: 0;
+            list-style: none;
+        }
+        ul li {
+            display: inline-block;
+            background-color: #e0e0e0;
+            margin-right: 5px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Blog Article List</h1>
+    <table id="articlesTable">
+        <thead>
+            <tr>
+                <th>Link</th>
+                <th>Title</th>
+                <th>Tags</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="3">Loading articles...</td></tr>
+        </tbody>
+    </table>
+
+    <script>
+        // Directly fetch the JSON data
+        const jsonUrl = 'https://raw.githubusercontent.com/Risico98908/links001/main/links001.json';
+
+        // Fetch the JSON data
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const articles = data.data;
+                const tableBody = document.querySelector("#articlesTable tbody");
+
+                // Clear existing loading row
+                tableBody.innerHTML = '';
+
+                // Check if articles exist
+                if (articles.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="3">No articles found</td></tr>';
+                    return;
+                }
+
+                // Loop through the articles and create rows
+                articles.forEach((article, index) => {
+                    console.log(`Processing article ${index + 1}:`, article);
+
+                    const [link, title, tags] = article;
+
+                    // Create a new row
+                    const row = document.createElement('tr');
+
+                    // Create the link cell
+                    const linkCell = document.createElement('td');
+                    const linkElement = document.createElement('a');
+                    linkElement.href = link;
+                    linkElement.textContent = link;
+                    linkElement.target = '_blank';  // Open link in a new tab
+                    linkCell.appendChild(linkElement);
+                    row.appendChild(linkCell);
+
+                    // Create the title cell
+                    const titleCell = document.createElement('td');
+                    titleCell.textContent = title;
+                    row.appendChild(titleCell);
+
+                    // Create the tags cell
+                    const tagsCell = document.createElement('td');
+                    const tagsList = document.createElement('ul');
+
+                    // Check if tags is an array and display them
+                    if (Array.isArray(tags)) {
+                        tags.forEach(tag => {
+                            const tagItem = document.createElement('li');
+                            tagItem.textContent = tag;
+                            tagsList.appendChild(tagItem);
+                        });
+                    } else {
+                        const noTags = document.createElement('li');
+                        noTags.textContent = 'No tags';
+                        tagsList.appendChild(noTags);
+                    }
+                    tagsCell.appendChild(tagsList);
+                    row.appendChild(tagsCell);
+
+                    // Append the row to the table
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching the JSON:', error);
+                const tableBody = document.querySelector("#articlesTable tbody");
+                tableBody.innerHTML = '<tr><td colspan="3">Failed to load articles</td></tr>';
+            });
+    </script>
+
+</body>
+</html>
